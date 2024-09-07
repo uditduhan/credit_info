@@ -1,4 +1,5 @@
 from datetime import date, datetime
+from typing import Any
 
 from nanoid import generate
 from sqlalchemy import ForeignKey
@@ -64,7 +65,14 @@ class LoanInformation(Base):
 #     password: Mapped[str]
 
 
-def row2dict(row):
+def row2dict(row: Any) -> dict:
+    """
+    Convert an SQLAlchemy model instance to a dictionary.
+    Args:
+        row: The SQLAlchemy model instance to convert.
+    Returns:
+        A dictionary where keys are column names and values are column values.
+    """
     row_dict = {}
     for column in row.__table__.columns:
         value = getattr(row, column.name)

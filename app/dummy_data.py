@@ -13,7 +13,7 @@ fake = Faker()
 async def create_dummy_data() -> None:
     async with sessionmanager.session() as session:
         for _ in range(10):
-            company_id = generate(alphabet="0123456789abcdefghijklmnopqrst",size=10)
+            company_id = generate(alphabet="0123456789abcdefghijklmnopqrst", size=10)
             company = Company(
                 id=company_id,
                 name=fake.company(),
@@ -44,7 +44,9 @@ async def create_dummy_data() -> None:
             for _ in range(random.randint(1, 5)):
                 loan_info = LoanInformation(
                     company_id=company_id,
-                    loan_amount=fake.pyfloat(left_digits=7, right_digits=2, positive=True),
+                    loan_amount=fake.pyfloat(
+                        left_digits=7, right_digits=2, positive=True
+                    ),
                     taken_on=fake.date_between_dates(
                         datetime(2020, 1, 1), datetime(2022, 12, 31)
                     ),

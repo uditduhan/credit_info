@@ -15,7 +15,7 @@ logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
 @asynccontextmanager
 async def lifespan(app_: FastAPI):
     """
-    Function that handles startup and shutdown events
+    Manages application lifecycle events for startup and shutdown.
     """
     await init_db()
     await create_dummy_data()
@@ -26,6 +26,9 @@ async def lifespan(app_: FastAPI):
 
 
 def setup_routes(app_: FastAPI) -> None:
+    """
+    Registers routers with the FastAPI application.
+    """
     app_.include_router(company.router, prefix=settings.BASE_ROUTE, tags=["Company"])
     app_.include_router(credit.router, prefix=settings.BASE_ROUTE, tags=["Credit"])
 

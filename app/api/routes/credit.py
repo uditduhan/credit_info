@@ -13,6 +13,16 @@ router = APIRouter()
 
 @router.get("/credits")
 async def get_credit_info_of_all_company(db: DBSessionDep) -> JSONResponse:
+    """
+    Retrieve credit information for all companies.
+    Args:
+        db: Dependency for database session.
+    Returns:
+        A JSONResponse containing the credit information for each company, including:
+        - company_id
+        - company_name
+        - credit_information (calculated as two-year turnover minus due amount)
+    """
     company_repo = CompanyRepository(db)
     credit_repo = CreditRepository(db)
     companies = await company_repo.get_all_companies()
@@ -43,6 +53,17 @@ async def get_credit_info_of_all_company(db: DBSessionDep) -> JSONResponse:
 async def get_credit_info_of_a_company(
     company_id: str, db: DBSessionDep
 ) -> JSONResponse:
+    """
+    Retrieve credit information for a specific company.
+    Args:
+        company_id: The ID of the company to retrieve information for.
+        db: Dependency for database session.
+    Returns:
+        A JSONResponse containing:
+        - company_id
+        - company_name
+        - credit_information (calculated as two-year turnover minus total due amount)
+    """
     credit_repo = CreditRepository(db)
     company_repo = CompanyRepository(db)
     company_info = await company_repo.get_company_by_id(company_id)
@@ -63,6 +84,17 @@ async def get_credit_info_of_a_company(
 async def add_credit_info_for_a_company(
     loan: LoanInformationCreate, db: DBSessionDep
 ) -> JSONResponse:
+    """
+    Add loan information for a specific company.
+    Args:
+        loan: The loan information to add.
+        db: Dependency for database session.
+    Returns:
+        A JSONResponse containing:
+        - data: The added loan information.
+        - message: Success message.
+        - success: Boolean indicating success.
+    """
     company_repo = CompanyRepository(db)
     credit_repo = CreditRepository(db)
     await company_repo.get_company_by_id(loan.company_id)
@@ -78,6 +110,18 @@ async def add_credit_info_for_a_company(
 async def update_credit_info(
     company_id: str, loan: LoanInformationUpdate, db: DBSessionDep
 ) -> JSONResponse:
+    """
+    Update loan details for a specific company.
+    Args:
+        company_id: The ID of the company.
+        loan: The updated loan information.
+        db: Dependency for database session.
+    Returns:
+        A JSONResponse containing:
+        - data: The updated loan information.
+        - message: Success message.
+        - success: Boolean indicating success.
+    """
     company_repo = CompanyRepository(db)
     credit_repo = CreditRepository(db)
     await company_repo.get_company_by_id(company_id)
@@ -97,6 +141,17 @@ async def update_credit_info(
 async def delete_loan_of_company(
     loan_id: int, company_id: str, db: DBSessionDep
 ) -> JSONResponse:
+    """
+    Soft deletes a loan for a specific company.
+    Args:
+        loan_id: The ID of the loan to be deleted.
+        company_id: The ID of the company associated with the loan.
+        db: Dependency for database session.
+    Returns:
+        A JSONResponse containing:
+        - message: Success message.
+        - success: Boolean indicating success.
+    """
     company_repo = CompanyRepository(db)
     credit_repo = CreditRepository(db)
     await company_repo.get_company_by_id(company_id)
@@ -104,6 +159,3 @@ async def delete_loan_of_company(
     return JSONResponse(
         {"message": "Loan deleted successfully", "success": True}, status_code=200
     )
-
-
-# Other endpoints for GET by ID, POST, PUT, DELETE

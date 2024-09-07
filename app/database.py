@@ -37,6 +37,9 @@ class DbSessionManager:
 
     @contextlib.asynccontextmanager
     async def connect(self) -> AsyncIterator[AsyncConnection]:
+        """
+        Provides an asynchronous context manager for database connections.
+        """
         if self._engine is None:
             raise Exception("DbSessionManager is not initialized")
         async with self._engine.begin() as connection:
@@ -48,6 +51,9 @@ class DbSessionManager:
 
     @contextlib.asynccontextmanager
     async def session(self) -> AsyncIterator[AsyncSession]:
+        """
+        Provides an asynchronous context manager for database sessions.
+        """
         if self._sessionmaker is None:
             raise Exception("DbSessionManager is not initialized")
         session = self._sessionmaker()
@@ -60,6 +66,9 @@ class DbSessionManager:
             await session.close()
 
     async def close(self) -> None:
+        """
+        Closes the database engine and cleans up resources.
+        """
         if self._engine is None:
             raise Exception("DbSessionManager is not initialized")
         await self._engine.dispose()
@@ -68,6 +77,9 @@ class DbSessionManager:
         self._sessionmaker = None
 
     def get_engine(self) -> AsyncEngine | None:
+        """
+        Retrieves the current database engine.
+        """
         return self._engine
 
 
@@ -75,5 +87,8 @@ sessionmanager = DbSessionManager(settings.DATABASE_URL)
 
 
 async def get_db_session():
+    """
+    Provides an asynchronous database session.
+    """
     async with sessionmanager.session() as session:
         yield session

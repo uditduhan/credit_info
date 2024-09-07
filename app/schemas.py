@@ -7,6 +7,13 @@ from pydantic_extra_types.phone_numbers import PhoneNumber
 
 
 def http_value_to_string(value: HttpUrl) -> str:
+    """
+    Convert an HttpUrl value to a string.
+    Args:
+        value: The HttpUrl to be converted.
+    Returns:
+        str: The string representation of the HttpUrl.
+    """
     return str(value)
 
 

@@ -6,7 +6,7 @@ from sqlalchemy import func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import AnnualInformation, LoanInformation, LoanStatus, row2dict
+from app.models import AnnualInformation, LoanInformation, row2dict
 from app.schemas import LoanInformationCreate, LoanInformationUpdate, LoanStatus
 
 logger = getLogger()
@@ -17,6 +17,13 @@ class CreditRepository:
         self.db = db
 
     async def get_company_two_year_turnover(self, company_id: str) -> float:
+        """
+        Retrieve the sum of the last two years' annual turnover for a company.
+        Args:
+            company_id: ID of the company.
+        Returns:
+            The sum of the annual turnover for the last two fiscal years, or 0.0 if no data is found.
+        """
         two_years_turnover = (
             select(AnnualInformation.annual_turnover)
             .where(AnnualInformation.company_id == company_id)
@@ -30,6 +37,13 @@ class CreditRepository:
         return sum_of_turnovers if sum_of_turnovers else 0.0
 
     async def get_total_due_loan_amount(self, company_id: str) -> float:
+        """
+        Retrieve the total due loan amount for a company.
+        Args:
+            company_id: ID of the company.
+        Returns:
+            The total amount of due loans, or 0.0 if no due loans exist.
+        """
         due_amount = await self.db.scalar(
             select(func.sum(LoanInformation.loan_amount)).where(
                 LoanInformation.company_id == company_id,
@@ -41,6 +55,13 @@ class CreditRepository:
     async def get_two_year_turnover_of_companies(
         self, company_ids: list
     ) -> dict[str, float]:
+        """
+        Get the total turnover for the last two years for each company in the list.
+        Args:
+            company_ids: List of company IDs.
+        Returns:
+            A dictionary with company IDs as keys and total turnover for the last two years as values.
+        """
         subquery = (
             select(
                 AnnualInformation.company_id,
@@ -70,6 +91,13 @@ class CreditRepository:
     async def get_total_due_amount_of_companies(
         self, company_ids: list
     ) -> dict[str, float]:
+        """
+        Get the total due loan amount for each company in the list.
+        Args:
+            company_ids: List of company IDs.
+        Returns:
+            A dictionary with company IDs as keys and their total due loan amount as values.
+        """
         result = await self.db.execute(
             select(
                 LoanInformation.company_id,
@@ -86,6 +114,16 @@ class CreditRepository:
     async def get_company_loan_by_id(
         self, company_id: str, loan_id: int
     ) -> LoanInformation:
+        """
+        Get a loan by its ID for a specific company.
+        Args:
+            company_id: ID of the company.
+            loan_id: ID of the loan.
+        Returns:
+            Loan information if found.
+        Raises:
+            HTTPException: If the loan does not exist for the company.
+        """
         db_loan = await self.db.scalar(
             select(LoanInformation).where(
                 LoanInformation.company_id == company_id, LoanInformation.id == loan_id
@@ -96,6 +134,15 @@ class CreditRepository:
         return db_loan
 
     async def add_loans_of_company(self, loan: LoanInformationCreate) -> dict:
+        """
+        Add a new loan to a company's record.
+        Args:
+            loan: Loan details to be added.
+        Returns:
+            The added loan information as a dictionary.
+        Raises:
+            HTTPException: If there is a conflict or integrity error while adding the loan.
+        """
         db_loans = LoanInformation(**loan.model_dump())
         self.db.add(db_loans)
         try:
@@ -113,6 +160,14 @@ class CreditRepository:
     async def update_loan_details_of_company(
         self, company_id: int, loan: LoanInformationUpdate
     ) -> dict:
+        """
+        Update the details of a loan for a specific company.
+        Args:
+            company_id: ID of the company.
+            loan: Updated loan details.
+        Returns:
+            The updated loan information as a dictionary.
+        """
         db_loan = await self.get_company_loan_by_id(company_id, loan.id)
         if db_loan:
             for key, value in loan.model_dump().items():
@@ -123,6 +178,12 @@ class CreditRepository:
         return row2dict(db_loan)
 
     async def delete_loan_of_company(self, company_id: str, loan_id: int) -> None:
+        """
+        Soft delete a loan from a company's record by marking it as inactive.
+        Args:
+            company_id: ID of the company.
+            loan_id: ID of the loan to be deleted.
+        """
         db_loan = await self.get_company_loan_by_id(company_id, loan_id)
         if db_loan:
             db_loan.active = False
