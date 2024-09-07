@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    restart: always
+    container_name: db
+    environment:
+      POSTGRES_USER: dev-user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dev_db
+    ports:
+      - 5432:5432
+    expose:
+      - "5432"
+    volumes:
+      - ./db/:/data/db
+
+  app:
+    build: .
+    command: fastapi run app/server.py
+    container_name: app
+    tty: true
+    volumes:
+      - ./code/:/src
+    environment:
+      PYTHONPATH: .
+      DATABASE_URL: "postgresql+asyncpg://dev-user:password@postgres:5432/dev_db"
+      BASE_ROUTE: "/credhive"
+    depends_on:
+      - "postgres"
+    ports:
+      - 8000:8000
