@@ -1,5 +1,5 @@
 # Credit Information API
-Evaluation Project: Credit Information API and Postgres Backend
+Credit Information API and Postgres Backend
 
 ## Commands
 Start project:
