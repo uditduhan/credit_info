@@ -10,7 +10,7 @@ docker compose up -d
 ## Endpoints:
 Base URL:
 ```
-http://localhost:8000/credhive/
+http://localhost:8000/cred/
 ```
 
 API Docs:
