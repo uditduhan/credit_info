@@ -24,7 +24,7 @@ services:
     environment:
       PYTHONPATH: .
       DATABASE_URL: "postgresql+asyncpg://dev-user:password@postgres:5432/dev_db"
-      BASE_ROUTE: "/credhive"
+      BASE_ROUTE: "/cred"
     depends_on:
       - "postgres"
     ports:
